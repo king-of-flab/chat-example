@@ -5,7 +5,10 @@
   var socket = io();
   var canvas = document.getElementsByClassName('whiteboard')[0];
   var colors = document.getElementsByClassName('color');
+  var sidebar = document.getElementsByClassName('sidebar')
   var context = canvas.getContext('2d');
+
+  var guessList = ['house', 'sun']
 
   socket.on('connect', function() {
   })
@@ -26,13 +29,30 @@
       canvas.addEventListener('mouseup', onMouseUp, false);
       canvas.addEventListener('mouseout', onMouseUp, false);
       canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
-      console.log(turn)
+
+      $('.sidebar').append($(`<p> your turn  to draw</p>`))
+      $('.sidebar').append($(`<p>DRAW: ${guessList[0]}</p>`))
+
     } else {
       canvas.removeEventListener('mousedown', onMouseDown, false);
       canvas.removeEventListener('mouseup', onMouseUp, false);
       canvas.removeEventListener('mouseout', onMouseUp, false);
       canvas.removeEventListener('mousemove', throttle(onMouseMove, 10), false);
-      console.log(turn)
+
+      $('.sidebar').append($(`<p> your turn  to guess</p>`))
+      $('.sidebar').append($(`<form class="form"></form>`))
+      $('.form').append($(`<input id='guessedAns' type="text"><button class='submitBtn'>Submit</button>`))
+
+      $('.submitBtn').on('click', function(e) {
+        e.preventDefault()
+        var guessedAns = $('#guessedAns').val()
+        if (guessedAns === guessList[0]) {
+          alert('correct!')
+        } else {
+          alert('try again')
+        }
+
+      })
     }
   })
 
@@ -112,7 +132,7 @@
 
   // make the canvas fill its parent
   function onResize() {
-    canvas.width = window.innerWidth;
+    canvas.width = window.innerWidth * 0.75;
     canvas.height = window.innerHeight;
   }
 

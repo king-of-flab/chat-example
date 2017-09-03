@@ -19,12 +19,20 @@ html, body {
 
 .whiteboard {
   height: 100%;
-  width: 100%;
+  width: 75%;
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   top: 0;
+}
+
+.sidebar {
+  height: 100%;
+  width: 25%;
+  background-color: grey;
+  position: absolute;
+  right: 0;
 }
 
 .colors {
