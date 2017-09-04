@@ -52,10 +52,40 @@ io.on('connection', function(socket){
     console.log(socket.id + "joined " + socket.room, rooms.length, socket.turn, 3)
   }
 
+
   io.to(socket.id).emit('turn', socket.turn)
+
+  socket.on('change turn', function () {
+    // console.log(socket.turn)
+    socket.turn = !socket.turn // turning turn from true to false and vice versa
+    console.log(socket.turn)
+    io.to(socket.id).emit('turn', socket.turn)
+
+    var idIndex = rooms.indexOf(socket.id)
+    var oppPlayerId = rooms[idIndex - 1]
+
+    io.to(oppPlayerId).emit('changeTurnProcess', 'dummy variable')
+
+  })
 
   socket.on('chat message', function(msg){
     io.emit('chat message',  msg);
+  });
+
+  socket.on('changeTurnProcess', function () {
+    socket.turn = !socket.turn
+    io.to(socket.id).emit('turn', socket.turn)
+  })
+
+  socket.on('guessedAns', function(msg){
+    // console.log(msg)
+    var idIndex = rooms.indexOf(socket.id)
+    var oppPlayerId = rooms[idIndex - 1]
+
+
+      io.to(oppPlayerId).emit('guessedAns',  msg);
+
+
   });
 
   io.emit('testconnection', users, socket.id)

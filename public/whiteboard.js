@@ -18,11 +18,6 @@
   };
   var drawing = false;
 
-  canvas.addEventListener('mousedown', onMouseDown, false);
-  canvas.addEventListener('mouseup', onMouseUp, false);
-  canvas.addEventListener('mouseout', onMouseUp, false);
-  canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
-
   socket.on('turn', function(turn) {
     if(turn) {
       canvas.addEventListener('mousedown', onMouseDown, false);
@@ -30,6 +25,7 @@
       canvas.addEventListener('mouseout', onMouseUp, false);
       canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
+      $('.sidebar').empty()
       $('.sidebar').append($(`<p> your turn  to draw</p>`))
       $('.sidebar').append($(`<p>DRAW: ${guessList[0]}</p>`))
 
@@ -39,17 +35,34 @@
       canvas.removeEventListener('mouseout', onMouseUp, false);
       canvas.removeEventListener('mousemove', throttle(onMouseMove, 10), false);
 
+      $('.sidebar').empty()
       $('.sidebar').append($(`<p> your turn  to guess</p>`))
-      $('.sidebar').append($(`<form class="form"></form>`))
-      $('.form').append($(`<input id='guessedAns' type="text"><button class='submitBtn'>Submit</button>`))
+      // $('.sidebar').append($(`<form class="form"></form>`)) // do we need a form?
+      $('.sidebar').append($(`<input id='guessedAns' type="text"><button class='submitBtn'>Submit</button>`))
+      $('.sidebar').append($(`<div class="playerGuessedAns"></div>`))
+
+      $('#guessedAns').keyup(function () {
+        var guessedAns = $('#guessedAns').val()
+        socket.emit('guessedAns', guessedAns)
+      })
 
       $('.submitBtn').on('click', function(e) {
         e.preventDefault()
+
+        socket.emit('guessedAns', '') // to clear guessed field for opp player
+
         var guessedAns = $('#guessedAns').val()
+        $('#guessedAns').val('')
         if (guessedAns === guessList[0]) {
           alert('correct!')
+          guessList.splice(0,1)
+          console.log(guessList)
+          socket.emit('change turn', "dummy variable") // Did not have the need to send anything to server
+
         } else {
+          console.log(guessedAns)
           alert('try again')
+
         }
 
       })
@@ -61,6 +74,17 @@
   }
 
   socket.on('drawing', onDrawingEvent);
+
+  socket.on('guessedAns', function(guessedAns) {
+    $('.playerGuessedAns').remove()
+    $('.sidebar').append($(`<div class="playerGuessedAns"></div>`))
+    $('.playerGuessedAns').append($(`<p>${guessedAns}</p>`))
+  })
+
+  socket.on('changeTurnProcess', function () {
+    guessList.splice(0,1)
+    socket.emit('changeTurnProcess', 'dummy variable')
+  })
 
   window.addEventListener('resize', onResize, false);
   onResize();
