@@ -58,7 +58,7 @@
           guessList.splice(0,1)
           console.log(guessList)
           socket.emit('change turn', "dummy variable") // Did not have the need to send anything to server
-
+          context.clearRect(0, 0, canvas.width, canvas.height)
         } else {
           console.log(guessedAns)
           alert('try again')
@@ -83,6 +83,7 @@
 
   socket.on('changeTurnProcess', function () {
     guessList.splice(0,1)
+    context.clearRect(0, 0, canvas.width, canvas.height)
     socket.emit('changeTurnProcess', 'dummy variable')
   })
 
