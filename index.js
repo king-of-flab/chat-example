@@ -79,12 +79,21 @@ io.on('connection', function(socket){
 
   socket.on('guessedAns', function(msg){
     // console.log(msg)
-    var idIndex = rooms.indexOf(socket.id)
-    var oppPlayerId = rooms[idIndex - 1]
 
+    io.of('/').adapter.clients([socket.room], (err, clients) => {
+      var idIndex = rooms.indexOf(socket.id)
+      // var oppPlayerId = rooms[idIndex - 1]
 
-      io.to(oppPlayerId).emit('guessedAns',  msg);
-
+      // if (clients.includes(oppPlayerId)) {
+      var index = clients.indexOf(socket.id)
+      clients.splice(index, 1)
+        io.to(clients[0]).emit('guessedAns',  msg);
+      // } else {
+      //   var oppPlayerId = rooms[idIndex + 2]
+      //   io.to(oppPlayerId).emit('guessedAns',  msg)
+      // }
+      // console.log(clients); // an array containing socket ids in 'room1' and/or 'room2'
+});
 
   });
 
