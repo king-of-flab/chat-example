@@ -50,3 +50,23 @@ html, body {
 .color.green { background-color: green; }
 .color.blue { background-color: blue; }
 .color.yellow { background-color: yellow; }
+.color.white { background-color: grey; }
+
+.clearCanvas {
+  height: 48px;
+  width: 48px;
+  background-color: pink;
+  display: inline-block;
+}
+
+
+/*username*/
+.username{
+  background-color: white;
+  position: relative;
+  height: 100%;
+  width: 100%;
+
+}
+
+.

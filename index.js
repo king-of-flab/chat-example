@@ -52,8 +52,33 @@ io.on('connection', function(socket){
     console.log(socket.id + "joined " + socket.room, rooms.length, socket.turn, 3)
   }
 
+  io.of('/').adapter.clients([socket.room], (err, clients) => {
+    if(clients.length === 1) {
+      io.to(socket.id).emit('wait for player')
+    } else if (clients.length === 2) {
+      io.to(socket.room).emit('second player arrived')
+    }
+  })
 
   io.to(socket.id).emit('turn', socket.turn)
+
+  socket.on('username', function(username) {
+    io.of('/').adapter.clients([socket.room], (err, clients) => {
+
+      var index = clients.indexOf(socket.id)
+      clients.splice(index, 1)
+        io.to(clients[0]).emit('username', username);
+  })
+})
+
+  socket.on('clear canvas', function () {
+    io.of('/').adapter.clients([socket.room], (err, clients) => {
+
+      var index = clients.indexOf(socket.id)
+      clients.splice(index, 1)
+        io.to(clients[0]).emit('clear canvas');
+  })
+})
 
   socket.on('change turn', function () {
     // console.log(socket.turn)
@@ -61,10 +86,13 @@ io.on('connection', function(socket){
     console.log(socket.turn)
     io.to(socket.id).emit('turn', socket.turn)
 
-    var idIndex = rooms.indexOf(socket.id)
-    var oppPlayerId = rooms[idIndex - 1]
+    io.of('/').adapter.clients([socket.room], (err, clients) => {
 
-    io.to(oppPlayerId).emit('changeTurnProcess', 'dummy variable')
+      var index = clients.indexOf(socket.id)
+      clients.splice(index, 1)
+        io.to(clients[0]).emit('changeTurnProcess', 'dummy variable');
+
+});
 
   })
 
@@ -88,18 +116,23 @@ io.on('connection', function(socket){
       var index = clients.indexOf(socket.id)
       clients.splice(index, 1)
         io.to(clients[0]).emit('guessedAns',  msg);
-      // } else {
-      //   var oppPlayerId = rooms[idIndex + 2]
-      //   io.to(oppPlayerId).emit('guessedAns',  msg)
-      // }
-      // console.log(clients); // an array containing socket ids in 'room1' and/or 'room2'
-});
+
+    });
 
   });
 
   io.emit('testconnection', users, socket.id)
 
 socket.on('drawing', (data) => io.to(socket.room).emit('drawing', data))
+
+socket.on('correct answer', function () {
+  io.of('/').adapter.clients([socket.room], (err, clients) => {
+    var idIndex = rooms.indexOf(socket.id)
+    var index = clients.indexOf(socket.id)
+    clients.splice(index, 1)
+    io.to(clients[0]).emit('correct answer');
+})
+})
 
   socket.on('disconnect', function () {
     userIndex = users.indexOf(socket.id)
